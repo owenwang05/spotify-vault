@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 export default {
   content: [
     "./index.html",
@@ -21,7 +22,9 @@ export default {
       }
     },
     extend: {
-
+      fontFamily: {
+        'sans': ['"Inter"', "Akshar", ...require('tailwindcss/defaultTheme').fontFamily.sans]
+      }
     },
   },
   plugins: [],
