@@ -9,7 +9,7 @@ export default {
     colors: {
       background: {
         primary: '#191919',
-        secondary: '#000000'
+        secondary: '#060606'
       },
       t: {
         primary: '#FFFFFF',
@@ -23,7 +23,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        'sans': ['"Inter"', "Akshar", ...require('tailwindcss/defaultTheme').fontFamily.sans]
+        'sans': ['"Inter"', ...require('tailwindcss/defaultTheme').fontFamily.sans]
       }
     },
   },

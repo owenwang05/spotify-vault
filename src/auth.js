@@ -1,28 +1,37 @@
-export async function redirectToAuthCodeFlow() {
-  const verifier = generateCodeVerifier(128);
-  const challenge = await generateCodeChallenge(verifier);
+const clientID = "84909814ef1c44faad1299269068aa6e";
+const redirectURI = "http://localhost:5173/auth";
 
-  localStorage.setItem("verifier", verifier);
+// prevent user from being stuck in an authentication loop 
+export function clearData()
+{
+  localStorage.setItem("verifier", "");
+  localStorage.setItem("access_token", "");
+  localStorage.setItem("profile", "");
+}
 
-  const params = new URLSearchParams();
-  params.append("client_id", "84909814ef1c44faad1299269068aa6e");
-  params.append("response_type", "code");
-  params.append("redirect_uri", "https://github.com/owen-wang-student/spotify-vault");
-  params.append("scope", "user-read-private user-read-email");
-  params.append("code_challenge_method", "S256");
-  params.append("code_challenge", challenge);
-
-  document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
+export async function checkAPICode() {
+  // if access token hasn't been set yet, then run code to retrieve data
+  if(!localStorage.getItem("verifier")) {
+    redirectToAuthCodeFlow();
+    return 0;
+  } else if(!localStorage.getItem("access_token")) {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if(!code) {
+      redirectToAuthCodeFlow();
+    }
+    const token = await getAccessToken(code);
+    const profile = await fetchProfile(token);
+    return profile ? 1 : 0;
+  } else {
+    return 1;
+  }
 }
 
 function generateCodeVerifier(length) {
-  let text = '';
-  let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (let i = 0; i < length; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const values = crypto.getRandomValues(new Uint8Array(length));
+  return values.reduce((acc, x) => acc + possible[x % possible.length], "");
 }
 
 async function generateCodeChallenge(codeVerifier) {
@@ -32,4 +41,78 @@ async function generateCodeChallenge(codeVerifier) {
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=+$/, '');
+}
+
+// redirects user to spotify authenication page and returns to provided callback url
+async function redirectToAuthCodeFlow() {
+  clearData();
+  const verifier = generateCodeVerifier(128);
+  const challenge = await generateCodeChallenge(verifier);
+
+  localStorage.setItem("verifier", verifier);
+
+  const params = new URLSearchParams();
+  params.append("client_id", clientID);
+  params.append("response_type", "code");
+  params.append("redirect_uri", redirectURI);
+  params.append("scope", "user-read-private user-read-email");
+  params.append("code_challenge_method", "S256");
+  params.append("code_challenge", challenge);
+
+  document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
+}
+
+// using authorization code fetch the spotify token api 
+async function getAccessToken(code) {
+  const verifier = localStorage.getItem("verifier");
+  
+  const params = new URLSearchParams();
+  params.append("client_id", clientID);
+  params.append("grant_type", "authorization_code");
+  params.append("code", code);
+  params.append("redirect_uri", redirectURI);
+  params.append("code_verifier", verifier);
+
+  const result = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: { 
+      "Content-Type": "application/x-www-form-urlencoded" 
+    },
+    body: params,
+  });
+
+  const response = await result.json();
+  if(!response.access_token) return "";
+  else {
+    localStorage.setItem("access_token", response);
+
+    const data = await JSON.stringify(response);
+    localStorage.setItem("access_test", data);
+    console.log(data);
+
+    return response.access_token;
+  }
+}
+
+// fetch profile given 
+async function fetchProfile(accessToken) {
+  if (!accessToken) {
+    console.error("No access token.");
+    return null;
+  }
+
+  const result = await fetch("https://api.spotify.com/v1/me", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    },
+  });
+  const response = await result.json();
+  localStorage.setItem("profile", response);
+
+  const data = await JSON.stringify(response);
+  localStorage.setItem("profile_test", data);
+  console.log(data);
+
+  return response;
 }

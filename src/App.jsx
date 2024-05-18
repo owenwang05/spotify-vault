@@ -1,16 +1,21 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+
 import { Error } from './components/Error'
 import { Landing } from './components/Landing'
 import { Footer } from './components/Footer'
+import { NoAuth } from './components/NoAuth'
+import { Temp } from './components/Temp'
+import { Auth } from './components/Auth'
 
 function App() {
-
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" index element={<Landing/>}/>
-        <Route path="/home" element={<Navigate to="/" replace/>}/>
-        <Route path="/index" element={<Navigate to="/" replace/>}/>
+        <Route path="/" index element={<Landing/>}/> <Route path="/home" element={<Navigate to="/" replace/>}/> <Route path="/index" element={<Navigate to="/" replace/>}/>
+        <Route path="auth" element={<Auth/>}/>
+        <Route path="noauth" element={<NoAuth/>}/>
+        <Route path="temp" element={<Temp/>}/>
         <Route path="*" element={<Error/>}/>
       </Routes>
       <Footer/>
