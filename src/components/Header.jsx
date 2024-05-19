@@ -11,25 +11,21 @@ export function UserHeader() {
   const [showPopup, setShowPopup] = useState(false);
 
   return (
-    <header className="bg-background-secondary pb-1 pl-auto pr-auto">
-      <div className="table w-full h-16 bg-background-primary text-t-secondary text-center ">
-        <div className="table-cell align-middle text-left">
-          <div className="table-cell align-middle pl-4 pr-3">
-            <Link to="/">
-              <img src={icon} width="48"/>
-            </Link>
-          </div>
-          <div className="table-cell align-middle">
-            <Link to="/" >
-              <h1 
-                className="font-['Akshar'] text-2xl transition-colors text-1xl hover:text-t-primary hover:underline"
-                >SPOTIFY VAULT
-              </h1>
-            </Link>
-          </div>
+    <header className="bg-background-secondary pl-auto pr-auto">
+      <div className="flex w-full h-16 bg-background-secondary text-t-secondary items-center justify-between px-6">
+        <div className="flex flex-row items-center gap-2">
+          <Link to="/">
+            <img src={icon} width="48"/>
+          </Link>
+          <Link to="/" >
+            <h1 
+              className="font-['Akshar'] text-2xl transition-colors text-1xl hover:text-t-primary hover:underline"
+              >SPOTIFY VAULT
+            </h1>
+          </Link>
         </div>
 
-        <div className="table-cell align-middle text-right pr-4">
+        <div>
           <button className="table-cell align-middle font-['Akshar'] transition-colors text-xl hover:text-t-primary hover:underline"
               onClick={(e) => {
                 if(profile) {
@@ -38,29 +34,45 @@ export function UserHeader() {
                   navigate("/auth");
                 }
               }}
-            >{profile 
-              ? <><img className="transition-border ease-in-out hover:border-3 border-white hover:duration-75 duration-50"
-                  width="48"
-                  src={JSON.parse(profile).images[0].url}
+          >
+            {profile ? 
+                <div className="rounded-full overflow-hidden">
+                  <img 
+                    className={`transition-border ease-in-out ${showPopup ? 'border-t-primary border-4' : 'hover:border-3 border-t-secondary' } hover:duration-75 duration-50 object-contain rounded-full`}
+                    width="48"
+                    src={JSON.parse(profile).images[0].url}
                   />
-                </>
-              : <>LOGIN</>}
+                </div>
+              : 
+                <div>
+                  LOGIN
+                </div>
+            }
           </button>
+          
           {showPopup ? 
-            <div className="flex flex-col absolute bg-background-primary right-4 border-3">
-              <button className="w-full px-2 py-1"
+            <div className="block w-36 absolute right-7 top-16 bg-background-primary p-4 rounded-md">
+              <button 
+                className="transition-all font-['Akshar'] text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 border-background-primary hover:border-l-6 hover:border-bt-primary text-xl"
                 onClick={() => {
-                  navigate("/temp")
+                  navigate("/user")
                 }}
-              >Profile</button>
-              <button className="w-full px-2 py-1"
+              >
+                Profile
+              </button>
+              <button 
+                className="transition-all font-['Akshar'] text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 hover:border-l-6 border-background-primary hover:border-bt-primary text-xl"
                 onClick={() => {
                   clearData();
                   navigate("/")
                 }}
-              >Log Out</button>
+              >
+                Log Out
+              </button>
             </div>
-            : <></>}
+            : null
+          }
+          
         </div>
       </div>
     </header>
