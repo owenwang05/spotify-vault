@@ -6,7 +6,10 @@ export function clearData()
 {
   localStorage.setItem("verifier", "");
   localStorage.setItem("access_token", "");
+  localStorage.setItem("expire", "");
   localStorage.setItem("profile", "");
+  localStorage.setItem("top_songs", "");
+  localStorage.setItem("top_artists", "");
 }
 
 export async function checkAPICode() {
@@ -55,7 +58,12 @@ async function redirectToAuthCodeFlow() {
   params.append("client_id", clientID);
   params.append("response_type", "code");
   params.append("redirect_uri", redirectURI);
-  params.append("scope", "user-read-private user-read-email");
+  params.append("scope", `
+    user-read-private 
+    user-read-email 
+    user-top-read
+    user-read-recently-played
+    `);
   params.append("code_challenge_method", "S256");
   params.append("code_challenge", challenge);
 
@@ -86,6 +94,7 @@ async function getAccessToken(code) {
   else {
     const data = JSON.stringify(response);
     localStorage.setItem("access_token", data);
+    localStorage.setItem("expire", Date.now() + (response.expires_in-1) * 1000);
 
     return response.access_token;
   }

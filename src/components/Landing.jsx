@@ -10,7 +10,7 @@ export function Landing() {
         <div className=" absolute top-0 flex w-full h-16 text-t-secondary items-center justify-end px-6">
           <button 
             onClick={(e) => {navigate("/auth")}}
-            className="font-['Akshar'] transition-colors text-2xl hover:text-t-primary hover:underline"
+            className="font-akshar transition-colors text-2xl hover:text-t-primary hover:underline"
           >
             LOGIN
           </button>
@@ -24,7 +24,7 @@ export function Landing() {
           </h2>
           <button 
             onClick={(e) => {navigate("/auth")}}
-            className="font-['Akshar'] font-medium px-16 py-4 bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-md text-xl text-t-tertiary"
+            className="font-akshar font-medium px-16 py-4 bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-md text-xl text-t-tertiary"
           >LOG IN TO SPOTIFY
           </button>
         </div>

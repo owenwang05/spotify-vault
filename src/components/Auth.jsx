@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
 
 import { checkAPICode, clearData } from '../auth';
 
@@ -11,8 +10,8 @@ export function Auth() {
 
   useEffect(() => {(async () => {
     const status = error ? 0 : await checkAPICode();
-    if(status) navigate("/temp");
-    else navigate("/noauth");
+    if(status) navigate("/user");
+    else navigate("/");
   })()}, []);
 
   return (

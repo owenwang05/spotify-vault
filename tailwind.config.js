@@ -18,7 +18,8 @@ export default {
     colors: {
       background: {
         primary: '#191919',
-        secondary: '#060606'
+        secondary: '#060606',
+        tertiary: '#2F2F2F'
       },
       t: {
         primary: '#FFFFFF',
@@ -32,7 +33,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        'sans': ['"Inter"', ...require('tailwindcss/defaultTheme').fontFamily.sans]
+        'sans': ['"Inter"', ...require('tailwindcss/defaultTheme').fontFamily.sans],
+        'akshar': ['"Akshar"', '"Inter"', ...require('tailwindcss/defaultTheme').fontFamily.sans]
       }
     },
   },

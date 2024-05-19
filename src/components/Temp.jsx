@@ -15,12 +15,22 @@ export function Temp() {
             navigate("/");
           }}
           className="font-['Akshar'] font-medium px-16 py-4 mx-auto bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-md text-xl text-t-tertiary"
-          >RETURN HOME
+        >
+            RETURN HOME
         </button>
         <button 
           onClick={clearData}
           className="mt-5 font-['Akshar'] font-medium px-16 py-4 mx-auto bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-md text-xl text-t-tertiary"
-          >CLEAR DATA
+        >
+          CLEAR DATA
+        </button>
+        <button 
+          onClick={() => {
+            navigate("/user")
+          }}
+          className="mt-5 font-['Akshar'] font-medium px-16 py-4 mx-auto bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-md text-xl text-t-tertiary"
+        >
+          Go to User Page
         </button>
       </div>
     </>

@@ -8,10 +8,8 @@ export function User(){
   const topArtists = JSON.parse(localStorage.getItem("topSongs"));
   const topSongs = JSON.parse(localStorage.getItem("topArtists"));
 
-  console.log(topSongs);
-
   for(var i = 0; i < topSongs.items.length; i++) {
-    console.log(i);
+    console.log(topSongs.items[i]);
   }
 
   return (
