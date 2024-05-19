@@ -3,8 +3,9 @@ import { clearData, checkAPICode } from "./auth";
 function checkValidSession() {
   const expire = localStorage.getItem("expire");
   const accessToken = localStorage.getItem("access_token");
+  const profile = localStorage.getItem("profile");
 
-  if(accessToken && Date.now() < expire) {
+  if(profile && expire && accessToken && Date.now() < expire) {
     return true;
   }
 
@@ -21,7 +22,7 @@ async function getListenTime(){
 
 }
 
-export async function getTopSongs(){
+export async function getTopSongs(setSongsLoaded){
   checkValidSession();
 
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
@@ -38,12 +39,14 @@ export async function getTopSongs(){
   
   const response = await result.json();
   const data = JSON.stringify(response);
-  localStorage.setItem("topSongs", data);
+  localStorage.setItem("top_songs", data);
+
+  if(setSongsLoaded) setSongsLoaded(true);
 
   return response;
 }
 
-export async function getTopArtists(){
+export async function getTopArtists(setArtistsLoaded){
   checkValidSession();
 
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
@@ -60,7 +63,9 @@ export async function getTopArtists(){
   
   const response = await result.json();
   const data = JSON.stringify(response);
-  localStorage.setItem("topArtists", data);
+  localStorage.setItem("top_artists", data);
+
+  if(setArtistsLoaded) setArtistsLoaded(true);
 
   return response;
 }

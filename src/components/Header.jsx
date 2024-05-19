@@ -59,6 +59,7 @@ export function UserHeader() {
               <button 
                 className="transition-all font-akshar text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 border-background-primary hover:border-l-6 hover:border-bt-primary text-xl"
                 onClick={() => {
+                  setShowPopup(false);
                   navigate("/user")
                 }}
               >
@@ -67,6 +68,7 @@ export function UserHeader() {
               <button 
                 className="transition-all font-akshar text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 hover:border-l-6 border-background-primary hover:border-bt-primary text-xl"
                 onClick={() => {
+                  setShowPopup(false);
                   clearData();
                   navigate("/")
                 }}
