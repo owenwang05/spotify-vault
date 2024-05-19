@@ -84,11 +84,8 @@ async function getAccessToken(code) {
   const response = await result.json();
   if(!response.access_token) return "";
   else {
-    localStorage.setItem("access_token", response);
-
-    const data = await JSON.stringify(response);
-    localStorage.setItem("access_test", data);
-    console.log(data);
+    const data = JSON.stringify(response);
+    localStorage.setItem("access_token", data);
 
     return response.access_token;
   }
@@ -108,10 +105,8 @@ async function fetchProfile(accessToken) {
     },
   });
   const response = await result.json();
-  localStorage.setItem("profile", response);
-
-  const data = await JSON.stringify(response);
-  localStorage.setItem("profile_test", data);
+  const data = JSON.stringify(response);
+  localStorage.setItem("profile", data);
   console.log(data);
 
   return response;
