@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import { Error } from './components/Error'
@@ -7,6 +6,7 @@ import { Footer } from './components/Footer'
 import { NoAuth } from './components/NoAuth'
 import { Temp } from './components/Temp'
 import { Auth } from './components/Auth'
+import { User } from './components/User'
 
 function App() {
   return (
@@ -16,6 +16,7 @@ function App() {
         <Route path="auth" element={<Auth/>}/>
         <Route path="noauth" element={<NoAuth/>}/>
         <Route path="temp" element={<Temp/>}/>
+        <Route path="user" element={<User />}/>
         <Route path="*" element={<Error/>}/>
       </Routes>
       <Footer/>
