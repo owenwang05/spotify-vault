@@ -19,14 +19,14 @@ export function UserHeader() {
           </Link>
           <Link to="/" >
             <h1 
-              className="font-['Akshar'] text-2xl transition-colors text-1xl hover:text-t-primary hover:underline"
+              className="font-akshar text-2xl transition-colors text-1xl hover:text-t-primary hover:underline"
               >SPOTIFY VAULT
             </h1>
           </Link>
         </div>
 
         <div>
-          <button className="table-cell align-middle font-['Akshar'] transition-colors text-xl hover:text-t-primary hover:underline"
+          <button className="table-cell align-middle font-akshar transition-colors text-xl hover:text-t-primary hover:underline"
               onClick={(e) => {
                 if(profile) {
                   setShowPopup((curState) => (!curState));
@@ -38,7 +38,11 @@ export function UserHeader() {
             {profile ? 
                 <div className="rounded-full overflow-hidden">
                   <img 
-                    className={`transition-border ease-in-out ${showPopup ? 'border-t-primary border-4' : 'hover:border-3 border-t-secondary' } hover:duration-75 duration-50 object-contain rounded-full`}
+                    className={`transition-border object-contain rounded-full hover:duration-75 duration-50
+                    ${showPopup 
+                      ? 'border-t-primary border-4' 
+                      : 'hover:border-4 border-t-secondary'}`
+                    }
                     width="48"
                     src={JSON.parse(profile).images[0].url}
                   />
@@ -53,7 +57,7 @@ export function UserHeader() {
           {showPopup ? 
             <div className="block w-36 absolute right-7 top-16 bg-background-primary p-4 rounded-md">
               <button 
-                className="transition-all font-['Akshar'] text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 border-background-primary hover:border-l-6 hover:border-bt-primary text-xl"
+                className="transition-all font-akshar text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 border-background-primary hover:border-l-6 hover:border-bt-primary text-xl"
                 onClick={() => {
                   navigate("/user")
                 }}
@@ -61,7 +65,7 @@ export function UserHeader() {
                 Profile
               </button>
               <button 
-                className="transition-all font-['Akshar'] text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 hover:border-l-6 border-background-primary hover:border-bt-primary text-xl"
+                className="transition-all font-akshar text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 hover:border-l-6 border-background-primary hover:border-bt-primary text-xl"
                 onClick={() => {
                   clearData();
                   navigate("/")
