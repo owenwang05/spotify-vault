@@ -15,6 +15,23 @@ export default {
       '6': '6px',
       '8': '8px'
     },
+    keyframes: {
+      loadIn: {
+        '0%': { transform: 'translateY(-5%)',
+                opacity: 0 },
+        '100%': { transform: 'translateY(0)',
+                  opacity: 1 },
+      },
+      pulse: {
+        '0%, 100%': { opacity: 1 },
+        '50%': { opacity: 0.5 }
+      },
+    },
+    animation: {
+      'loadIn': 'loadIn 0.6s ease-out',
+      'popup': 'loadIn 0.3s ease-out',
+      'pulse': 'pulse 1.2s ease-in-out infinite'
+    },
     colors: {
       background: {
         primary: '#191919',

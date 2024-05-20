@@ -55,7 +55,7 @@ export function UserHeader() {
           </button>
           
           {showPopup ? 
-            <div className="block w-36 absolute right-7 top-16 bg-background-primary p-4 rounded-md">
+            <div className="animate-popup block w-36 absolute right-7 top-16 bg-background-primary p-4 rounded-md">
               <button 
                 className="transition-all font-akshar text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 border-background-primary hover:border-l-6 hover:border-bt-primary text-xl"
                 onClick={() => {

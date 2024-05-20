@@ -27,9 +27,9 @@ export function User(){
     <>
       <UserHeader />
       <section className="w-full h-full min-h-screen px-6 bg-background-secondary">
-        <div className='flex flex-col gap-8 justify-center items-center max-w-6xl mx-auto'>
+        <div className='flex flex-col gap-4 justify-center items-center max-w-6xl mx-auto'>
           {profile ?
-            <div className="flex flex-row items-center justify-start gap-12 w-full">
+            <div className="animate-loadIn flex flex-row items-center justify-start gap-12 w-full">
               <img 
                 alt="profile picture"
                 src={profile.images[1].url}
@@ -39,12 +39,14 @@ export function User(){
                 {profile.display_name}
               </h1>
             </div>
-            : <></>
+            : 
+            <></>
           }
           {topSongs && topArtists && listenTime
           ?
             <>
-              <div className="grid grid-cols-3 gap-8 w-full">
+              <div className="animate-loadIn grid grid-cols-3 gap-4 w-full">
+                
                 <div className="h-full bg-background-primary text-t-primary rounded-lg">
                   <div className='p-6'>
                     <h1 className='text-3xl font-semibold'>Listening Time</h1>
@@ -96,20 +98,20 @@ export function User(){
                 </div>
               </div>
       
-              <div className='h-96 w-full bg-background-primary'>
+              <div className='animate-loadIn h-96 w-full bg-background-primary'>
                 
               </div>
       
-              <div className='h-96 w-full bg-background-primary mb-8'>
+              <div className='animate-loadIn h-96 w-full bg-background-primary mb-8'>
       
               </div>
             </>
           :
             <>
-              <div className='pt-10'>
-                <h2 className='animate-pulse mx-auto text-t-secondary text-4xl'>
+              <div className='flex flex-col justify-center align-middle h-full pt-40'>
+                <h1 className='animate-pulse mx-auto text-t-secondary text-4xl'>
                   loading your data...
-                </h2>
+                </h1>
               </div>
             </>
           }
