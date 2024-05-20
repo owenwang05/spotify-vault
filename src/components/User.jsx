@@ -1,29 +1,27 @@
 import { useState, useEffect } from 'react';
 
 import { UserHeader } from './Header'
-import { getTopArtists, getTopSongs, getListenTime } from '../data_access'
+import { checkValidSession, getProfile, getTopSongs, getTopArtists, getListenTime, getTopGenres } from '../data_access'
 import { clearData, checkAPICode } from '../auth';
 
 export function User(){
+  const [profile, setProfile] = useState(undefined);
   const [listenTime, setListenTime] = useState(undefined);
+  const [topGenres, serToGenres] = useState(undefined); 
   const [topArtists, setArtists] = useState(undefined);
   const [topSongs, setSongs] = useState(undefined);
 
-  useEffect(() => {
-    getListenTime(setListenTime);
-    getTopArtists(setArtists);
-    getTopSongs(setSongs); 
-  }, []);
-
-  var profile = "";
-
-  try {
-    profile = JSON.parse(localStorage.getItem("profile"));
-    if(!profile) throw new Error("Invalid profile");
-  } catch(e) {
-    clearData();
-    checkAPICode();
-  }
+  useEffect(() => {(async () => {
+    await checkValidSession(); 
+    try {
+      getProfile(setProfile);
+      getListenTime(setListenTime);
+      getTopArtists(setArtists);
+      getTopSongs(setSongs); 
+    } catch(e) {
+      console.error(e);
+    }
+  })();}, []);
 
   return (
     <>
@@ -47,13 +45,13 @@ export function User(){
           ?
             <>
               <div className="grid grid-cols-3 gap-8 w-full">
-                <div className="h-96 bg-background-primary text-t-primary rounded-lg">
+                <div className="h-full bg-background-primary text-t-primary rounded-lg">
                   <div className='p-6'>
                     <h1 className='text-3xl font-semibold'>Listening Time</h1>
-                    <div className="text-bold text-4xl my-6">
-                      <span>{("0" + Math.floor((listenTime / 3600000) % 24)).slice(-2)}:</span>
-                      <span>{("0" + Math.floor((listenTime / 60000) % 60)).slice(-2)}:</span>
-                      <span>{("0" + Math.floor((listenTime / 1000) % 60)).slice(-2)}</span>
+                    <div className="text-5xl font-semibold my-6">
+                      <span>{(Math.floor((listenTime / 3600000) % 24))}h{' '}</span>
+                      <span>{("0" + Math.floor((listenTime / 60000) % 60)).slice(-2)}m{' '}</span>
+                      <span>{("0" + Math.floor((listenTime / 1000) % 60)).slice(-2)}s</span>
                     </div>
                     <h1 className='text-3xl font-semibold'>Top Genres</h1>
                   </div>

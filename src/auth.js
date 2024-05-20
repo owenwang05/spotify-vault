@@ -8,16 +8,27 @@ export function clearData()
   localStorage.setItem("access_token", "");
   localStorage.setItem("expire", "");
   localStorage.setItem("profile", "");
-  localStorage.setItem("top_songs", "");
-  localStorage.setItem("top_artists", "");
 }
 
-export async function checkAPICode() {
-  // if access token hasn't been set yet, then run code to retrieve data
-  if(!localStorage.getItem("verifier")) {
+export async function checkAPICode() { // returns successful (true) or not (false)
+  const expire = localStorage.getItem("expire");
+  const prevAccessToken = localStorage.getItem("access_token");
+
+  // if access token is expired, then call reauthenticate() and exit from this function.
+  if(prevAccessToken && expire && expire < Date.now()) {
+    const token = await reauthenticate();
+    const profile = await fetchProfile(token);
+    if(!profile) console.error("profile is undefined after reauth");
+    return true;
+  }
+  // othwerwise if there's no verification string in local storage, then redirect to 
+  // spotify login page by calling redirectToAuthCodeFlow
+  else if(!localStorage.getItem("verifier")) {
     redirectToAuthCodeFlow();
-    return 0;
-  } else if(!localStorage.getItem("access_token")) {
+    return false;
+  // after returning from spotify login page redirect in the previous step, function 
+  // is called again to get code from parameters and generate an access code here.
+  } else if(!prevAccessToken) {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     if(!code) {
@@ -25,9 +36,11 @@ export async function checkAPICode() {
     }
     const token = await getAccessToken(code);
     const profile = await fetchProfile(token);
-    return profile ? 1 : 0;
+    return profile ? true : false;
+  // only reach this case if all credentials are valid when function is called, in 
+  // which the function does nothing.
   } else {
-    return 1;
+    return true;
   }
 }
 
@@ -72,6 +85,11 @@ async function redirectToAuthCodeFlow() {
 
 // using authorization code fetch the spotify token api 
 async function getAccessToken(code) {
+  if(!code) {
+    console.error("No code.");
+    return null;
+  }
+
   const verifier = localStorage.getItem("verifier");
   
   const params = new URLSearchParams();
@@ -100,6 +118,7 @@ async function getAccessToken(code) {
   }
 }
 
+
 // fetch profile given 
 async function fetchProfile(accessToken) {
   if (!accessToken) {
@@ -119,4 +138,43 @@ async function fetchProfile(accessToken) {
   console.log(data);
 
   return response;
+}
+
+
+async function reauthenticate() {
+  const accessToken = localStorage.getItem("access_token");
+  if(accessToken) {
+    try {
+      const refreshToken = JSON.parse(accessToken).refresh_token;
+      console.log(refreshToken);
+      const params = new URLSearchParams();
+      params.append("grant_type", "refresh_token");
+      params.append("refresh_token", refreshToken);
+      params.append("client_id", clientID);
+
+      const result = await fetch("https://accounts.spotify.com/api/token",{
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params
+      });
+
+      const response = await result.json();
+      if(!response.access_token) return "";
+      else {
+        const data = JSON.stringify(response);
+        localStorage.setItem("access_token", data);
+        localStorage.setItem("expire", Date.now() + (response.expires_in-1) * 1000);
+        
+        return response.access_token;
+      }
+    } catch(e) {
+      console.error(e);
+      return false;
+    }
+  }
+
+  console.log("unable to reauthenticate");
+  return false;
 }

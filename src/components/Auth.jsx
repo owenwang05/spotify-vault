@@ -8,11 +8,11 @@ export function Auth() {
   const params = new URLSearchParams(window.location.search);
   const error = params.get("error");
 
-  useEffect(() => {(async () => {
-    const status = error ? 0 : await checkAPICode();
+  useEffect(() => { (async () => {
+    const status = error ? false : await checkAPICode();
     if(status) navigate("/user");
     else navigate("/");
-  })()}, []);
+  })();}, []);
 
   return (
     <>
