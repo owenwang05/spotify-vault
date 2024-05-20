@@ -30,7 +30,15 @@ export function Temp() {
           }}
           className="mt-5 font-['Akshar'] font-medium px-16 py-4 mx-auto bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-md text-xl text-t-tertiary"
         >
-          Go to User Page
+          GO TO USER PAGE
+        </button>
+        <button 
+          onClick={() => {
+            localStorage.setItem("expire", "1");
+          }}
+          className="mt-5 font-['Akshar'] font-medium px-16 py-4 mx-auto bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-md text-xl text-t-tertiary"
+        >
+          SET EXPIRE
         </button>
       </div>
     </>
