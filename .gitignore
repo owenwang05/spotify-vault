@@ -24,10 +24,10 @@ dist-ssr
 *.sw?
 
 # backend venv files
-backend/Include
-backend/Lib
-backend/Scripts
-backend/pyvenv.cfg
+Include
+Lib
+Scripts
+pyvenv.cfg
 
 # pycache
 __pycache__

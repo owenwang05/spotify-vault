@@ -7,7 +7,7 @@ class User(models.Model):
     def __str__(self):
         return self.userID
 
-class UserSnapshot(models.Model):
+class Snapshot(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     snapshotDate = models.DateField(auto_now_add=True, editable=False)
     listeningTime = models.IntegerField(default=0)
@@ -16,5 +16,5 @@ class UserSnapshot(models.Model):
     artistIDs = ArrayField(models.CharField(max_length=32), size=5, null=True)
 
     def __str__(self):
-        return self.snapshotDate
+        return self.snapshotDate.isoformat()
 
