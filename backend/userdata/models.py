@@ -1,20 +1,24 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
-class User(models.Model):
-    userID = models.CharField(max_length=32)
+class Profile(models.Model):
+    user_id = models.CharField(max_length=32)
+    last_modified = models.DateField('Last Modified', auto_now=True)
+
+    def total_snapshots(self):
+        return self.snapshot_set.count()
 
     def __str__(self):
-        return self.userID
+        return self.user_id
 
 class Snapshot(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    snapshotDate = models.DateField(auto_now_add=True, editable=False)
-    listeningTime = models.IntegerField(default=0)
-    topGenres = ArrayField(models.CharField(max_length=32), size=3, null=True)
-    songIDs = ArrayField(models.CharField(max_length=32), size=5, null=True)
-    artistIDs = ArrayField(models.CharField(max_length=32), size=5, null=True)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    snapshot_date = models.DateField('Snapshot Date', auto_now_add=True)
+    listening_time = models.IntegerField(default=0)
+    top_genres = ArrayField(models.CharField(max_length=32), size=3, null=True)
+    song_ids = ArrayField(models.CharField(max_length=32), size=5, null=True)
+    artist_ids = ArrayField(models.CharField(max_length=32), size=5, null=True)
 
     def __str__(self):
-        return self.snapshotDate.isoformat()
+        return self.snapshot_date.isoformat()
 
