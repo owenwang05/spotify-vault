@@ -1,3 +1,3 @@
 # Spotify Vault
 
-Project for accessing spotify stats implemented using React.
+Project for accessing and processing spotify stats
