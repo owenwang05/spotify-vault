@@ -1,9 +1,16 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.utils import timezone
+
+import datetime
 
 class Profile(models.Model):
     user_id = models.CharField(max_length=32)
-    last_modified = models.DateField('Last Modified', auto_now=True)
+    last_modified = models.DateTimeField('Last Modified', auto_now=True)
+    snapshot_cached = models.BooleanField(default=False)
+
+    def recently_modified(self):
+        return self.last_modified <= timezone.now() - datetime.timedelta(days=1)
 
     def total_snapshots(self):
         return self.snapshot_set.count()

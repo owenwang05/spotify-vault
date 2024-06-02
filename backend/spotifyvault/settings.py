@@ -5,6 +5,8 @@ Need to create a .env file with the following fields:
 DB_NAME
 DB_USER
 DB_PASSWORD
+HOST
+PORT
 SECRET_KEY
 
 """
@@ -35,6 +37,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'userdata.apps.UserdataConfig',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
