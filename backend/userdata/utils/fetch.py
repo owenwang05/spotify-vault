@@ -10,7 +10,38 @@ def get_profile(access_token: str) -> dict:
     # data as a snapshot by either:
     # 1. overwriting the last stored snapshot if Profile.cached == True
     # or 2. create a new snapshot with the data and setting Profile.cached to True
-    raise TypeError("need to implement get_profile")
+
+    if access_token:
+        url = "https://api.spotify.com/v1/me/"
+        headers = {
+            "Authorization": f"Bearer {access_token}"
+        }  
+        response = requests.get(url, headers=headers)
+        json_response = response.json()
+        
+        try:
+            # fetch existing profile 
+            user_profile = Profile.objects.get(user_id=json_response["id"])
+            
+            # fetch all user snapshots
+            user_snapshots = user_profile.snapshot_set.all()
+
+            # update snapshot and turn it into a dictionary using snapshot serializer 
+            for i in user_snapshots:
+                print(i.top_genres)
+
+        except: 
+            # create new profile in database 
+            user_profile = Profile.objects.create(snapshot_cached=False, user_id=json_response["id"])
+            print(user_profile.user_id)
+            user_profile.save()
+
+    else:
+        # return an error for frontend to use 
+        return {}
+
+def __update_snapshot():
+    pass
 
 def save_profile(access_token: str) ->  bool:
     # TODO this function will save the last cached profile data to the 
