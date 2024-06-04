@@ -10,7 +10,7 @@ import requests
 # Create your views here.
 @csrf_exempt
 def profile(request, access_token):
-    fetch.get_profile(access_token)
+    data = fetch.get_profile(access_token)
     # if request.method == 'GET': # get most recent profile data
     #     try:
     #         data = fetch.get_profile(access_token) # TODO get_profile
@@ -30,31 +30,16 @@ def profile(request, access_token):
 
 def snapshot(request, access_token, snapshot_index):
     # Return profile data for a profile snapshot given the index
-    response = requests.get("https://api.spotify.com/v1/me", headers={
-        "Authorization": f"Bearer {access_token}"
-    }).json()
-
-    try:
-        user_id = response["id"]
-    except:
-        print("Failed to get profile")
+    if request.method == "GET":
+        data = fetch.get_snapshot(access_token, snapshot_index)
+        if(data):
+            return JsonResponse(data)
         return HttpResponse(status=404)
-
-    try:
-        profile = Profile.objects.get(user_id=user_id)
-    except:
-        print("Profile has not been created in database")
-        return HttpResponse(status=500)
-
-    try:
-        snapshot = profile.snapshot_set.order_by('-snapshot_date')[snapshot_index]
-    except:
-        print("Invalid snapshot index")
-        return HttpResponse(status=500)
-
-    return JsonResponse(SnapshotSerializer(snapshot).data)
 
 def snapshot_list(request, access_token):
     # Return a list of all snapshots for a given profile and their dates
-
-    return JsonResponse({})
+    if request.method == "GET":
+        data = fetch.list_snapshot_dates(access_token)
+        if(data):
+            return JsonResponse(dict(enumerate(data)))
+        return HttpResponse(status=404)

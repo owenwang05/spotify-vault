@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"
-import { clearData } from "../auth";
+import { clearData } from "../utils/auth";
 
 import icon from "../assets/icon.svg";
 

@@ -10,6 +10,7 @@ export function clearData()
   localStorage.setItem("profile", "");
 }
 
+// Checks that the current session is valid and reauthenticates if not
 export async function checkAPICode() { // returns successful (true) or not (false)
   const expire = localStorage.getItem("expire");
   const prevAccessToken = localStorage.getItem("access_token");
@@ -44,12 +45,14 @@ export async function checkAPICode() { // returns successful (true) or not (fals
   }
 }
 
+// generates a verification key
 function generateCodeVerifier(length) {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const values = crypto.getRandomValues(new Uint8Array(length));
   return values.reduce((acc, x) => acc + possible[x % possible.length], "");
 }
 
+// hashes verification key
 async function generateCodeChallenge(codeVerifier) {
   const data = new TextEncoder().encode(codeVerifier);
   const digest = await window.crypto.subtle.digest('SHA-256', data);
@@ -59,7 +62,7 @@ async function generateCodeChallenge(codeVerifier) {
       .replace(/=+$/, '');
 }
 
-// redirects user to spotify authenication page and returns to provided callback url
+// redirects user to Spotify authenication page and returns to provided callback url
 async function redirectToAuthCodeFlow() {
   clearData();
   const verifier = generateCodeVerifier(128);

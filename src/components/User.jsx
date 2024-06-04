@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { UserHeader } from './Header'
-import { checkValidSession, getProfile, getTopSongs, getTopArtists, getListenTime, getTopGenres } from '../data_access'
-import { clearData, checkAPICode } from '../auth';
+import { checkValidSession, getProfile, getTopSongs, getTopArtists, getListenTime, getTopGenres } from '../utils/data_access'
 
 export function User(){
   const [profile, setProfile] = useState(undefined);

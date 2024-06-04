@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { checkAPICode, clearData } from '../auth';
+import { checkAPICode } from '../utils/auth';
 
 export function Auth() {
   const navigate = useNavigate();

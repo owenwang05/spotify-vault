@@ -1,6 +1,6 @@
 import { UserHeader } from "./Header";
 import { useNavigate } from "react-router-dom";
-import { clearData } from "../auth";
+import { clearData } from "../utils/auth";
 
 export function Temp() {
   const navigate = useNavigate();
