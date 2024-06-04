@@ -11,6 +11,6 @@ class ProfileAdmin(admin.ModelAdmin):
         (None, {"fields": ["user_id"]}),
     ]
     inlines = [SnapshotInline]
-    list_display = ["user_id", "last_modified", "total_snapshots"]
+    list_display = ["user_id", "last_saved", "total_snapshots"]
 
 admin.site.register(Profile, ProfileAdmin)

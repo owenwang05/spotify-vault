@@ -5,41 +5,51 @@ from userdata.models import Profile, Snapshot
 from userdata.serializers import SnapshotSerializer
 
 from .utils import fetch
-import requests
 
-# Create your views here.
+# TODO views are temporarily csrf_exempt  only for testing
+
 @csrf_exempt
-def profile(request, access_token):
-    data = fetch.get_profile(access_token)
-    # if request.method == 'GET': # get most recent profile data
-    #     try:
-    #         data = fetch.get_profile(access_token) # TODO get_profile
-    #         response = SnapshotSerializer(data)
-    #         return JsonResponse(response.data)
-    #     except:
-    #         print("Unable to get profile")
+def create_profile(request, access_token):
+    if request.method == 'GET':
+        status = fetch.create_profile(access_token)
+        if status:
+            return JsonResponse({'status': 201}, status=201)
+    return JsonResponse({'status': 404}, status=404)
 
-    # if request.method == "POST": # save profile
-    #     try:
-    #         success = fetch.save_profile(access_token) # TODO save_profile 
-    #         if not success: return HttpResponse(status=425)
-    #     except:
-    #         return HttpResponse(status=500)
-                
-    return HttpResponse(status=404)
+@csrf_exempt
+def get_profile(request, access_token):
+    if request.method == 'GET':
+        try:
+            data = fetch.get_profile(access_token) # TODO get_profile
+            response = SnapshotSerializer(data)
+            return JsonResponse(response.data)
+        except:
+            print("Unable to get profile")
+    return JsonResponse({'status': 404}, status=404)
 
-def snapshot(request, access_token, snapshot_index):
-    # Return profile data for a profile snapshot given the index
-    if request.method == "GET":
-        data = fetch.get_snapshot(access_token, snapshot_index)
-        if(data):
-            return JsonResponse(data)
-        return HttpResponse(status=404)
+@csrf_exempt
+def save_snapshot(request, access_token):
+    # Save the most recent data access to the database
+    if request.method == 'GET':
+        try:
+            success = fetch.save_snapshot(access_token) # TODO save_profile 
+            if not success: return JsonResponse({'status': 425}, status=425)
+        except:
+            print("Unable to save profile")
+    return JsonResponse({'status': 404}, status=404)
 
-def snapshot_list(request, access_token):
-    # Return a list of all snapshots for a given profile and their dates
-    if request.method == "GET":
+def list_snapshots(request, access_token):
+    # Returns a list of all snapshot dates for a profile
+    if request.method == 'GET':
         data = fetch.list_snapshot_dates(access_token)
         if(data):
             return JsonResponse(dict(enumerate(data)))
-        return HttpResponse(status=404)
+    return JsonResponse({'status': 404}, status=404)
+
+def get_snapshot(request, access_token, snapshot_index):
+    # Return data for a profile snapshot given the index
+    if request.method == 'GET':
+        data = fetch.get_snapshot(access_token, snapshot_index)
+        if(data):
+            return JsonResponse(data)
+    return JsonResponse({'status': 404}, status=404)

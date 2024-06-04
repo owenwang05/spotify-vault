@@ -6,7 +6,7 @@ import { checkValidSession, getProfile, getTopSongs, getTopArtists, getListenTim
 export function User(){
   const [profile, setProfile] = useState(undefined);
   const [listenTime, setListenTime] = useState(undefined);
-  const [topGenres, serToGenres] = useState(undefined); 
+  const [topGenres, setTopGenres] = useState(undefined); 
   const [topArtists, setArtists] = useState(undefined);
   const [topSongs, setSongs] = useState(undefined);
 
