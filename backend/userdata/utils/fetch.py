@@ -4,82 +4,101 @@ from userdata.models import Profile
 from userdata.serializers import SnapshotSerializer
 
 import requests, typing
+from collections import namedtuple
 
+import time
+from datetime import datetime
 
-def create_profile(access_token: str) -> bool:
+Response = namedtuple('Response', ['status', 'data'])
+
+def create_profile(access_token: str) -> Response:
     """
-    Creates a profile and an empty cached snapshot
+    Creates a profile and an empty cached snapshot. If profile exists, do nothing.
 
     Args: 
-        access_token (str): the spotify api access token passed from the front end
+        Pass in one but not the other:
+        user_id (str): 
+        access_token (str): the Spotify API access token for retrieving user id
 
     Returns: 
-        True if profile was created successfully, False if not
+        A Response namedtuple where data will have a message on whether the process
+        was successful or not.
     """
-    if not access_token: return False
+    # fetch user_id from Spotify API
+    if not access_token: return Response(status=400, data={'message': 'Invalid access token'})
 
-    url = "https://api.spotify.com/v1/me/"
-    headers = {
+    response = requests.get("https://api.spotify.com/v1/me", headers={
         "Authorization": f"Bearer {access_token}"
-    }  
-    response = requests.get(url, headers=headers)
-    json_response = response.json()
+    }).json()
 
     # if the profile already exists, then don't bother creating the profile
-    if Profile.objects.filter(user_id=json_response["id"]).exists():
-        return False
+    try:
+        user_id = response['id']
+    except KeyError:
+        return Response(status=400, data={'message': "Invalid access token"})
+    
+    if Profile.objects.filter(user_id=user_id).exists():
+        return Response(status=200, data={'message': "Profile already exists"})
 
     # otherwise create and save a new profile with a cached snapshot
-    user_profile = Profile.objects.create(user_id=json_response["id"], snapshot_cached=False)
+    Profile.objects.create(user_id=user_id, snapshot_cached=False)
     # passes in data already retrieved into __update_cache
-    try:
-        profile_data = {
-            'user_id': json_response["id"],
-            'username': json_response["display_name"],
-            'profile_picture': json_response["images"][1]["url"] if len(json_response["images"]) > 0 else ""
-        }
-    except KeyError:
-        return False
-    
+    profile_data = {
+        'user_id': user_id,
+        'username': response['display_name'],
+        'avatar_url': response['images'][1]['url'] if len(response['images']) > 0 else ""
+    }
     # __update_cache creates a new cached snapshot and saves it to the database
     status = __update_cache(access_token, profile_data=profile_data)
-    return status
+    if status:
+        return Response(status=201, data={'message': "Profile created"})
+    else:
+        return Response(status=500, data={'message': "No valid cached snapshot"})
 
 
-def get_profile(access_token: str) -> dict: # TODO
+def get_profile(access_token: str) -> Response:
     """
-    Gets most recent profile data and handles backend snapshot caching
+    Gets most recent profile data and last save date. Handles backend snapshot caching
 
     Args: 
-        access_token (str): the spotify api access token passed from the front end
+        access_token (str): the Spotify API access token for retrieving user id
 
     Returns: 
-        a dictionary with the data to be displayed on the page, or an empty dictionary
-        in the case of an error.
+        A Response namedtuple where data will be a dictionary with the data if
+        the request succeeds.
     """
     # in case of invalid access token, return error
-    if not access_token: return {}
+    if not access_token: return Response(status=400, data={'message': "Invalid access token"})
 
-    # fetch data user profile data from Spotify API
-    url = "https://api.spotify.com/v1/me/"
-    headers = {
+    # fetch user profile data from Spotify API
+    response = requests.get("https://api.spotify.com/v1/me", headers={
         "Authorization": f"Bearer {access_token}"
-    }  
-    response = requests.get(url, headers=headers)
-    json_response = response.json()
+    }).json()
+    
+    try:
+        user_id = response['id']
+    except KeyError:
+        return Response(status=400, data={'message': "Invalid access token"})
     
     try:
         # fetch existing profile 
-        user_profile = Profile.objects.get(user_id=json_response["id"])
-        
-        # fetch all user snapshots
-        user_snapshots = user_profile.snapshot_set.all()
+        profile = Profile.objects.get(user_id=user_id)
+    except ObjectDoesNotExist:
+        return Response(status=400, data={'message': "Profile needs to be created"})
 
-        # update snapshot and turn it into a dictionary using snapshot serializer 
-        # TODO
-
-    except ObjectDoesNotExist: 
-        return {}
+    # fetch all user snapshots
+    profile_data = {
+        'user_id': response['id'],
+        'username': response['display_name'],
+        'avatar_url': response['images'][1]['url'] if len(response['images']) > 0 else ""
+    }   
+    
+    if __update_cache(access_token, profile_data):
+        current_snapshot = profile.snapshot_set.order_by('-date')[0]
+        serializer = SnapshotSerializer(current_snapshot)
+        return Response(status=200, data=serializer.data)
+    else:
+        return Response(status=404, data={'message': "No valid cached snapshot"}) 
 
 
 def __update_cache(access_token: str, profile_data: dict={}) -> bool: # TODO 
@@ -88,13 +107,12 @@ def __update_cache(access_token: str, profile_data: dict={}) -> bool: # TODO
     is no cache in the database, this function will create one.
 
     Args: 
-        access_token (str): the spotify api access token passed from the front end
+        access_token (str): the Spotify API access token for retrieving user id
 
     Returns: 
-        a dictionary with the data to be displayed on the page, or an empty dictionary
-        in the case of an error.
+        True if the cache was updated successfully, False otherwise.
     """
-
+    # in case of invalid access token, return error
     if not access_token: return False
 
     # create a dictionary to hold all Snapshot field assignments
@@ -109,16 +127,17 @@ def __update_cache(access_token: str, profile_data: dict={}) -> bool: # TODO
 
     # retrieve data for profile information either from API or from parameter
     if not profile_data:
-        url = "https://api.spotify.com/v1/me/"
-        headers = {
-            "Authorization": f"Bearer {access_token}"
-        }  
-        response = requests.get(url, headers=headers)
-        json_response = response.json()
+        response = requests.get("https://api.spotify.com/v1/me", headers={
+        "Authorization": f"Bearer {access_token}"
+        }).json()
 
-        user_id = json_response['id']
-        assign['username'] = json_response['display_name']
-        assign['profile_picture'] = json_response['images'][1]["url"] if len(json_response["images"]) > 0 else ""
+        try:
+            user_id = response['id']
+        except:
+            print("Invalid access token")
+            return False
+        assign['username'] = response['display_name']
+        assign['avatar_url'] = response['images'][1]['url'] if len(response['images']) > 0 else ""
     else:
         try:
             user_id = profile_data['user_id']
@@ -134,19 +153,46 @@ def __update_cache(access_token: str, profile_data: dict={}) -> bool: # TODO
     # TODO retrieve data for listening time, top songs, artists, etc. #
     ###################################################################
 
+    # fetch all recent songs in the past 24 hours 
+
+    current_time = int(round(time.time() * 1000))
+    fetch_time = current_time - 86400000
+
+    count = 1
+    while(fetch_time):
+        
+        response = requests.get(f"https://api.spotify.com/v1/me/player/recently-played?limit=2&after={fetch_time}", headers={
+            "Authorization": f"Bearer {access_token}"
+        }).json()
+        
+        for i in response['items']:
+            print(i['track']['duration_ms'])
+            print(i['track']['id'])
+            print(i["played_at"])
+        
+        timestamp = response['items'][-1]["played_at"]
+        print(timestamp)
+        print(int(datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())) 
+        fetch_time -= 86400000
+
+        if(count == 2): break
+        count += 1
+
+
+
+
     # if a Snapshot is cached, retrieve the most recent snapshot
     try:
         profile = Profile.objects.get(user_id=user_id)
-
-        if profile.snapshot_cached:
-            snapshot = profile.snapshot_set.order_by('-snapshot_date')[0]
+        if profile.snapshot_cached: 
+            snapshot = profile.snapshot_set.order_by('-date')[0]
         else:
             snapshot = profile.snapshot_set.create()
             profile.snapshot_cached = True
-
         for (key, value) in assign.items():
             setattr(snapshot, key, value)
 
+        snapshot.save()
         profile.save()
         return True
     
@@ -155,32 +201,60 @@ def __update_cache(access_token: str, profile_data: dict={}) -> bool: # TODO
         return False
 
 
-def save_snapshot(access_token: str, profile_data: dict={}) ->  bool:
-    # TODO this function will save the last cached profile data to the 
-    # database and return True if successful, False if not.
-    #
-    # If there is no cached data for a profile, then do not change anything
-    # and return False
-    #
-    # Otherwise, set Profile.cached to False to mark the last snapshot as saved
-    raise TypeError("need to implement save_snapshot")
+def save_snapshot(access_token: str) -> Response:
+    """
+    Saves currently cached snapshot for a profile into the database permanently if
+    no snapshot was recently saved.
+
+    Args: 
+        access_token (str): the Spotify API access token for retrieving user id
+
+    Returns: 
+        A Response namedtuple which may include a message on whether the process
+        was successful or not.
+    """
+    # in case of invalid access token, return error
+    if not access_token: return Response(status=400, data={'message': "Invalid access token"})
+
+    # fetch user profile data from Spotify API
+    response = requests.get("https://api.spotify.com/v1/me", headers={
+        "Authorization": f"Bearer {access_token}"
+    }).json()
+
+    try:
+        user_id = response['id']
+    except KeyError:
+        return Response(status=400, data={'message': "Invalid access token"})
+    
+    # Retrieve profile from database and check for cached
+    try:
+        profile = Profile.objects.get(user_id=user_id)
+        if profile.recently_saved():
+            return Response(status=403, data={'message': "Last snapshot saved too recently"})
+
+        if profile.snapshot_cached:
+            profile.snapshot_cached = False
+            profile.last_saved = timezone.now()
+            profile.save()
+            return Response(status=200, data={'message': "Snapshot saved"})
+        else:
+            return Response(status=404, data={'message': "No valid cached snapshot"})
+    except ObjectDoesNotExist:
+        return Response(status=404, data={'message': "Profile needs to be created"})
 
 
-def retrieve_snapshot(access_token: str, snapshot_index: int) -> dict: 
+def get_snapshot(access_token: str, snapshot_index: int) -> Response: 
     """
     Retrieves a snapshot for a profile given the index of the snapshot
 
     Args: 
-        access_token (str): the spotify api access token for retrieving user id
-        snapshot_index (int): the index of the snapshot where 0 is the most recent,
-                              and subsequent numbers are later.
-
+        access_token (str): the Spotify API access token for retrieving user id
+        snapshot_index (int): index of the snapshot to delete where 0 is the most recent
     Returns: 
-        a dictionary with the data from the snapshot, or an empty dictionary in the 
-        case of an error.
+        A Response namedtuple where data will have a dictionary with the data.
     """
     # in case of invalid access token, return error
-    if not access_token: return {}
+    if not access_token: return Response(status=400, data={'message': "Invalid access token"})
 
     # Fetch user profile data from Spotify API
     response = requests.get("https://api.spotify.com/v1/me", headers={
@@ -190,30 +264,35 @@ def retrieve_snapshot(access_token: str, snapshot_index: int) -> dict:
     # Retrieves snapshot from the database 
     try:
         user_id = response['id']
+    except KeyError:
+        return Response(status=400, data={'message': "Invalid access token"})
+    
+    try:
         profile = Profile.objects.get(user_id=user_id)
-        snapshot = profile.snapshot_set.order_by('-snapshot_date')[snapshot_index]
-    except:
-        return {}
+    except ObjectDoesNotExist:
+        return Response(status=404, data={'message': "Profile needs to be created"})
+    
+    try:
+        snapshot = profile.snapshot_set.order_by('-date')[snapshot_index]
+        return Response(status=200, data=SnapshotSerializer(snapshot).data)
+    except IndexError:
+        return Response(status=404, data={'message': "Invalid snapshot index"})
 
-    # Serializes the model into a python dictionary and returns it
-    return SnapshotSerializer(snapshot).data
 
-def list_snapshot_dates(access_token: str) -> list:
+def list_snapshot_dates(access_token: str) -> Response:
     """
     Returns a list of all snapshot's save dates for a given profile
 
     Args: 
-        access_token (str): the spotify api access token for retrieving user id
-        snapshot_index (int): the index of the snapshot where 0 is the most recent,
-                              and subsequent numbers are later.
+        access_token (str): the Spotify API access token for retrieving user id
+        snapshot_index (int): index of the snapshot to delete where 0 is the most recent
 
     Returns: 
-        a dictionary with the data from the snapshot, or an empty dictionary in the 
-        case of an error.
+        A Response namedtuple where data will have an indexed dictionary of snapshot dates.
     """
 
     # in case of invalid access token, return error
-    if not access_token: return []
+    if not access_token: return Response(status=400, data={'message': "Invalid access token"})
 
     # Fetch user profile data from Spotify API
     response = requests.get("https://api.spotify.com/v1/me", headers={
@@ -223,9 +302,48 @@ def list_snapshot_dates(access_token: str) -> list:
     # Fetch the list of snapshot dates from the database
     try:
         user_id = response['id']
-        snapshots = Profile.objects.get(user_id=user_id).snapshot_set.order_by('-snapshot_date')
-        snapshot_dates = [i[0] for i in snapshots.values_list('snapshot_date')]
-    except:
-        return []
+    except KeyError:
+        return Response(status=400, data={'message': "Invalid access token"})
     
-    return snapshot_dates
+    try:
+        profile = Profile.objects.get(user_id=user_id)
+        snapshots = profile.snapshot_set.order_by('-date')
+        snapshot_dates = [i[0] for i in snapshots.values_list('date')] # converts list of dates into indexed dict
+        if profile.snapshot_cached and len(snapshot_dates) >= 0:
+            snapshot_dates[0] = "Live"
+        snapshot_dates = dict(enumerate(snapshot_dates))
+        return Response(status=200, data=snapshot_dates)
+    except ObjectDoesNotExist:
+        return Response(status=404, data={'message': "Profile needs to be created"})
+    
+
+
+def delete_profile(access_token: str) -> Response:
+    """
+    Deletes a profile and its snapshots from the database
+
+    Args: 
+        access_token (str): the Spotify API access token for retrieving user id
+
+    Returns: 
+        A Response namedtuple where data may include a message on whether the process was successful.
+    """
+    # in case of invalid access token, return error
+    if not access_token: return Response(status=400, data={'message': "Invalid access token"})
+
+    # fetch user profile data from Spotify API
+    response = requests.get("https://api.spotify.com/v1/me", headers={
+        "Authorization": f"Bearer {access_token}"
+    }).json()
+    
+    try:
+        user_id = response['id']
+    except KeyError:
+        return Response(status=400, data={'message': "Invalid access token"})
+    
+    try:
+        profile = Profile.objects.get(user_id=user_id)
+        profile.delete()
+        return Response(status=200, data={'message': "Profile was deleted"})
+    except ObjectDoesNotExist:
+        return Response(status=404, data={'message': "Profile needs to be created"})
