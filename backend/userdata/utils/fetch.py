@@ -1,13 +1,12 @@
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
-from userdata.models import Profile
+from userdata.models import Profile, TOP_GENRES_LENGTH, TOP_LIST_LENGTH
 from userdata.serializers import SnapshotSerializer
 
 import requests, typing
 from collections import namedtuple
-
 import time
-from datetime import datetime
+from datetime import datetime, timezone as dt_tz
 
 Response = namedtuple('Response', ['status', 'data'])
 
@@ -121,8 +120,8 @@ def __update_cache(access_token: str, profile_data: dict={}) -> bool: # TODO
         'avatar_url': '',
         'listening_time': 0,
         'top_genres': [],
-        'song_ids': [],
-        'artist_ids': [],
+        'top_songs': [],
+        'top_artists': [],
     }
 
     # retrieve data for profile information either from API or from parameter
@@ -149,46 +148,62 @@ def __update_cache(access_token: str, profile_data: dict={}) -> bool: # TODO
         # union the two dictionaries where parameters will take precedent
         assign = assign | profile_data
         
-    ###################################################################
-    # TODO retrieve data for listening time, top songs, artists, etc. #
-    ###################################################################
+    # Calculate listening time in the last 24 hours
+    fetch_time = int(time.time_ns() / 1000000) - 86400000
+    listening_time = 0
+    # iterate through recently played songs until all songs in last 24 hours are retrieved and processed
+    response = requests.get(f"https://api.spotify.com/v1/me/player/recently-played?limit=50&after={fetch_time}", headers={
+        "Authorization": f"Bearer {access_token}"
+    }).json()
+    # loop through each song in the recently played response and add to listening_time
+    if 'items' in response:
+        for item in response['items']:
+            listening_time += item['track']['duration_ms']
+    assign['listening_time'] = listening_time
 
-    # fetch all recent songs in the past 24 hours 
+    # Get top songs in last 4 weeks 
+    top_songs = []
+    response = requests.get(f"https://api.spotify.com/v1/me/top/artists?offset=0&limit={TOP_LIST_LENGTH}&time_range=short_term", headers={
+        "Authorization": f"Bearer {access_token}"
+    }).json()
+    if 'items' in response:
+        for item in response['items']:
+            top_songs.append(item['id'])
+    assign['top_songs'] = top_songs
 
-    current_time = int(round(time.time() * 1000))
-    fetch_time = current_time - 86400000
+    # Get top artists and process top genres in last 4 weeks
+    top_artists = []
+    genre_log = {}
+    response = requests.get(f"https://api.spotify.com/v1/me/top/artists?offset=0&limit=50&time_range=short_term", headers={
+        "Authorization": f"Bearer {access_token}"
+    }).json()
+    if 'items' in response:
+        for item in response['items']:
+            if len(top_artists) < TOP_LIST_LENGTH:
+                top_artists.append(item['id'])
 
-    count = 1
-    while(fetch_time):
-        
-        response = requests.get(f"https://api.spotify.com/v1/me/player/recently-played?limit=2&after={fetch_time}", headers={
-            "Authorization": f"Bearer {access_token}"
-        }).json()
-        
-        for i in response['items']:
-            print(i['track']['duration_ms'])
-            print(i['track']['id'])
-            print(i["played_at"])
-        
-        timestamp = response['items'][-1]["played_at"]
-        print(timestamp)
-        print(int(datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())) 
-        fetch_time -= 86400000
+            for genre in item['genres']:
+                if genre in genre_log:
+                    genre_log[genre] += 1
+                else:
+                    genre_log[genre] = 1
+    genre_log = sorted(genre_log.items(), key=lambda item: item[1], reverse=True)
+    top_genres = [item[0] for item in genre_log[:TOP_GENRES_LENGTH]]
+    assign['top_genres'] = top_genres
+    assign['top_artists'] = top_artists
 
-        if(count == 2): break
-        count += 1
-
-
-
-
-    # if a Snapshot is cached, retrieve the most recent snapshot
+    # store data in database
     try:
         profile = Profile.objects.get(user_id=user_id)
+        # if a Snapshot is cached, retrieve the most recent snapshot
         if profile.snapshot_cached: 
             snapshot = profile.snapshot_set.order_by('-date')[0]
+        # Otherwise create a new one
         else:
             snapshot = profile.snapshot_set.create()
             profile.snapshot_cached = True
+        
+        # Assign new values into cached snapshot
         for (key, value) in assign.items():
             setattr(snapshot, key, value)
 

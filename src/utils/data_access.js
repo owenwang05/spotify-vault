@@ -1,7 +1,5 @@
 import { clearData, checkAPICode } from "./auth";
 
-// this code is disgustingly bad
-
 const clientID = "84909814ef1c44faad1299269068aa6e";
 
 export async function checkValidSession() {

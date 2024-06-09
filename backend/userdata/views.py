@@ -1,5 +1,5 @@
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 
 from userdata.models import Profile, Snapshot
 from userdata.serializers import SnapshotSerializer
@@ -8,7 +8,7 @@ from .utils import fetch
 
 # TODO views are temporarily csrf_exempt  only for testing
 
-@csrf_exempt
+@csrf_protect
 def create_profile(request, access_token):
     data = fetch.create_profile(access_token)
     return JsonResponse(**data._asdict())
@@ -18,7 +18,7 @@ def create_profile(request, access_token):
         return JsonResponse(**response._asdict())
     return HttpResponse(status=404)
 
-@csrf_exempt
+@csrf_protect
 def get_profile(request, access_token):
     data = fetch.get_profile(access_token)
     return JsonResponse(**data._asdict())
@@ -28,7 +28,7 @@ def get_profile(request, access_token):
         return JsonResponse(**response._asdict())
     return HttpResponse(status=404)
 
-@csrf_exempt
+@csrf_protect
 def delete_profile(request, access_token):
     data = fetch.delete_profile(access_token)
     return JsonResponse(**data._asdict())
@@ -38,7 +38,7 @@ def delete_profile(request, access_token):
         return JsonResponse(**response._asdict())
     return HttpResponse(status=404)
 
-@csrf_exempt
+@csrf_protect
 def save_snapshot(request, access_token):
     data = fetch.save_snapshot(access_token)
     return JsonResponse(**data._asdict())
@@ -47,7 +47,6 @@ def save_snapshot(request, access_token):
         response = fetch.save_snapshot(access_token)
         return JsonResponse(**response._asdict())
     return HttpResponse(status=404)
-    
 
 def list_snapshots(request, access_token):
     # Returns a list of all snapshot dates for a profile

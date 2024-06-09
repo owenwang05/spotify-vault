@@ -4,6 +4,9 @@ from django.utils import timezone
 
 import datetime
 
+TOP_GENRES_LENGTH = 5
+TOP_LIST_LENGTH = 5
+
 class Profile(models.Model):
     user_id = models.CharField(max_length=30)
     snapshot_cached = models.BooleanField(default=False)
@@ -20,13 +23,13 @@ class Profile(models.Model):
 
 class Snapshot(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    date = models.DateField('Date Saved', auto_now_add=True)
+    date = models.DateTimeField('Date Saved', auto_now_add=True)
     username = models.CharField(max_length=30, default='null')
     avatar_url = models.CharField(max_length=100, default='') # empty string signifies no profile picture
     listening_time = models.IntegerField(default=0) # in milliseconds
-    top_genres = ArrayField(models.CharField(max_length=30), size=3, default=list)
-    song_ids = ArrayField(models.CharField(max_length=30), size=5, default=list)
-    artist_ids = ArrayField(models.CharField(max_length=30), size=5, default=list)
+    top_genres = ArrayField(models.CharField(max_length=30), size=TOP_GENRES_LENGTH, default=list)
+    top_songs = ArrayField(models.CharField(max_length=30), size=TOP_LIST_LENGTH, default=list)
+    top_artists = ArrayField(models.CharField(max_length=30), size=TOP_LIST_LENGTH, default=list)
 
     def __str__(self):
         return self.date.isoformat()
