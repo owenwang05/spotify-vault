@@ -1,22 +1,15 @@
 import { useState, useEffect } from 'react';
 
 import { UserHeader } from './Header'
-import { checkValidSession, getProfile, getTopSongs, getTopArtists, getListenTime, getTopGenres } from '../utils/data_access'
+import { checkValidSession, getRecent, getSnapshot} from '../utils/data_access'
 
 export function User(){
-  const [profile, setProfile] = useState(undefined);
-  const [listenTime, setListenTime] = useState(undefined);
-  const [topGenres, setTopGenres] = useState(undefined); 
-  const [topArtists, setArtists] = useState(undefined);
-  const [topSongs, setSongs] = useState(undefined);
+  const [data, setData] = useState(undefined);
 
   useEffect(() => {(async () => {
     await checkValidSession(); 
     try {
-      getProfile(setProfile);
-      getListenTime(setListenTime);
-      getTopArtists(setArtists);
-      getTopSongs(setSongs); 
+      getRecent(setData);
     } catch(e) {
       console.error(e);
     }
@@ -27,21 +20,21 @@ export function User(){
       <UserHeader />
       <section className="w-full h-full min-h-screen px-6 bg-background-secondary">
         <div className='flex flex-col gap-4 justify-center items-center max-w-6xl mx-auto'>
-          {profile ?
+          {data ?
             <div className="animate-loadIn flex flex-row items-center justify-start gap-12 w-full">
               <img 
                 alt="profile picture"
-                src={profile.images[1].url}
+                src={data.avatar_url}
                 className='w-75 rounded-full'
               />
               <h1 className="text-t-primary text-7xl font-medium font-akshar">
-                {profile.display_name}
+                {data.username}
               </h1>
             </div>
             : 
             <></>
           }
-          {topSongs && topArtists && listenTime
+          {false
           ?
             <>
               <div className="animate-loadIn grid grid-cols-3 gap-4 w-full">

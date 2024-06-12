@@ -322,15 +322,14 @@ def list_snapshot_dates(access_token: str) -> Response:
     
     try:
         profile = Profile.objects.get(user_id=user_id)
-        snapshots = profile.snapshot_set.order_by('-date')
-        snapshot_dates = [i[0] for i in snapshots.values_list('date')] # converts list of dates into indexed dict
-        if profile.snapshot_cached and len(snapshot_dates) >= 0:
-            snapshot_dates[0] = "Live"
-        snapshot_dates = dict(enumerate(snapshot_dates))
-        return Response(status=200, data=snapshot_dates)
     except ObjectDoesNotExist:
         return Response(status=404, data={'message': "Profile needs to be created"})
     
+    snapshots = profile.snapshot_set.order_by('-date')
+    snapshot_data = snapshots.values('date', 'listening_time') # get only the date and listening time for each snapshot
+    snapshot_data = dict(enumerate(snapshot_data))
+
+    return Response(status=200, data=snapshot_data)
 
 
 def delete_profile(access_token: str) -> Response:
