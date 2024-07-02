@@ -13,6 +13,7 @@ class Profile(models.Model):
     last_saved = models.DateTimeField('Last Saved', default=datetime.date.min)
 
     def recently_saved(self):
+        return False
         return self.last_saved >= timezone.now() - datetime.timedelta(days=1)
 
     def total_snapshots(self):
@@ -28,8 +29,8 @@ class Snapshot(models.Model):
     avatar_url = models.CharField(max_length=100, default='') # empty string signifies no profile picture
     listening_time = models.IntegerField(default=0) # in milliseconds
     top_genres = ArrayField(models.CharField(max_length=30), size=TOP_GENRES_LENGTH, default=list)
-    top_songs = ArrayField(models.CharField(max_length=30), size=TOP_LIST_LENGTH, default=list)
-    top_artists = ArrayField(models.CharField(max_length=30), size=TOP_LIST_LENGTH, default=list)
+    top_songs = models.JSONField(default=dict)
+    top_artists = models.JSONField(default=dict)
 
     def __str__(self):
         return self.date.isoformat()

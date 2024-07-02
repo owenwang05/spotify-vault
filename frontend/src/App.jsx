@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import { Error } from './components/Error'
 import { Landing } from './components/Landing'
-import { Footer } from './components/Footer'
 import { NoAuth } from './components/NoAuth'
 import { Temp } from './components/Temp'
 import { Auth } from './components/Auth'
@@ -19,7 +18,6 @@ function App() {
         <Route path="user" element={<User />}/>
         <Route path="*" element={<Error/>}/>
       </Routes>
-      <Footer/>
     </BrowserRouter>
   );
 }

@@ -16,15 +16,17 @@ export async function checkValidSession() {
   return false;
 }
 
+export async function createProfile(setData) {
+  const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
+  await fetch(`${apiURL}/create/${accessToken}/`, {
+    method: 'POST',
+  });
+}
+
 export async function getRecent(setData) {
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
-  console.log(Cookies.get('csrftoken'));
-
   const result = await fetch(`${apiURL}/recent/${accessToken}/`, {
     method: 'POST',
-    headers: {
-      'X-CSRFToken': Cookies.get('csrftoken') 
-    }
   });
 
   const response = await result.json(); 
@@ -33,7 +35,7 @@ export async function getRecent(setData) {
   setData(response);
 }
 
-export async function getSnapshots(setSnapshots) {
+export async function listSnapshots(setSnapshotList) {
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
   const result = await fetch(`${apiURL}/snapshots/${accessToken}/`, {
     method: "GET",
@@ -41,14 +43,36 @@ export async function getSnapshots(setSnapshots) {
 
   const response = await result.json(); 
   const data = JSON.stringify(response);
-  localStorage.setItem('snapshots', data);
-  setSnapshots(response);
+  localStorage.setItem('snapshot_list', data);
+  let array_conversion = []
+  for(let i = 0; i < response.length; i++) {
+    array_conversion.push(response[i]);
+  }
+  setSnapshotList(array_conversion);
 }
 
-export function getSnapshot(index, setData) {
+export async function getSnapshot(index, setSnapshot) {
+  const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
+  const result = await fetch(`${apiURL}/snapshots/${accessToken}/${index}`, {
+    method: "GET",
+  });
 
+  const response = await result.json(); 
+  const data = JSON.stringify(response);
+  localStorage.setItem('snapshot', data);
+  setSnapshot(response);
 }
 
-export function snapshotList(index, setSnapshots) {
+export async function saveSnapshot() {
+  const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
+  try {
+    await fetch(`${apiURL}/save/${accessToken}/`, {
+      method: 'POST',
+    });
+  } catch(e) {
+    console.error(e);
+    return false;
+  }
 
+  return true;
 }

@@ -1,3 +1,5 @@
+import { createProfile } from './data_access'
+
 const clientID = "84909814ef1c44faad1299269068aa6e";
 const redirectURI = "http://localhost:5173/auth";
 
@@ -117,10 +119,12 @@ async function getAccessToken(code) {
     localStorage.setItem("access_token", data);
     localStorage.setItem("expire", Date.now() + (response.expires_in-1) * 1000);
 
+    // create profile on database
+    createProfile(data);
+
     return response.access_token;
   }
 }
-
 
 // fetch profile given 
 async function fetchProfile(accessToken) {

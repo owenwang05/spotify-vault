@@ -11,7 +11,7 @@ export function UserHeader() {
   const [showPopup, setShowPopup] = useState(false);
 
   return (
-    <header className="bg-background-secondary pl-auto pr-auto">
+    <header className="bg-background-secondary pl-auto pr-auto py-2">
       <div className="flex w-full h-16 bg-background-secondary text-t-secondary items-center justify-between px-6">
         <div className="flex flex-row items-center gap-2">
           <Link to="/">

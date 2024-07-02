@@ -162,25 +162,31 @@ def __update_cache(access_token: str, profile_data: dict={}) -> bool: # TODO
     assign['listening_time'] = listening_time
 
     # Get top songs in last 4 weeks 
-    top_songs = []
-    response = requests.get(f"https://api.spotify.com/v1/me/top/artists?offset=0&limit={TOP_LIST_LENGTH}&time_range=short_term", headers={
+    top_songs = {
+        'songs': []
+    }
+    response = requests.get(f"https://api.spotify.com/v1/me/top/tracks?offset=0&limit={TOP_LIST_LENGTH}&time_range=short_term", headers={
         "Authorization": f"Bearer {access_token}"
     }).json()
+
     if 'items' in response:
         for item in response['items']:
-            top_songs.append(item['id'])
+            top_songs['songs'].append({'name': item['name'], 'image': item['album']['images'][0], 'artist': item['artists'][0]['name']})
+    
     assign['top_songs'] = top_songs
 
     # Get top artists and process top genres in last 4 weeks
-    top_artists = []
+    top_artists = {
+        'artists': []
+    }
     genre_log = {}
     response = requests.get(f"https://api.spotify.com/v1/me/top/artists?offset=0&limit=50&time_range=short_term", headers={
         "Authorization": f"Bearer {access_token}"
     }).json()
     if 'items' in response:
         for item in response['items']:
-            if len(top_artists) < TOP_LIST_LENGTH:
-                top_artists.append(item['id'])
+            if len(top_artists['artists']) < TOP_LIST_LENGTH:
+                top_artists['artists'].append({'name': item["name"], 'image': item['images'][0]})
 
             for genre in item['genres']:
                 if genre in genre_log:
@@ -328,6 +334,7 @@ def list_snapshot_dates(access_token: str) -> Response:
     snapshots = profile.snapshot_set.order_by('-date')
     snapshot_data = snapshots.values('date', 'listening_time') # get only the date and listening time for each snapshot
     snapshot_data = dict(enumerate(snapshot_data))
+    snapshot_data['length'] = len(snapshot_data)
 
     return Response(status=200, data=snapshot_data)
 
