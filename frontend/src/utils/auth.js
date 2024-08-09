@@ -1,6 +1,8 @@
 import { createProfile } from './data_access'
 
+// optionally create your own spotify app and host it here
 const clientID = "84909814ef1c44faad1299269068aa6e";
+// set this to your own domain's auth return page.
 const redirectURI = "http://localhost:5173/auth";
 
 // prevent user from being stuck in an authentication loop 
@@ -120,7 +122,7 @@ async function getAccessToken(code) {
     localStorage.setItem("expire", Date.now() + (response.expires_in-1) * 1000);
 
     // create profile on database
-    createProfile(data);
+    createProfile(data.access_token);
 
     return response.access_token;
   }
