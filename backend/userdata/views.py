@@ -18,12 +18,12 @@ def create_profile(request, access_token):
 @csrf_exempt
 def get_profile(request, access_token):
     # Retrieve most recent profile data
-    if request.method == 'POST':                      
+    if request.method == 'GET':                      
         response = fetch.get_profile(access_token)
         return JsonResponse(**response._asdict())
     return HttpResponse(status=404)
 
-@csrf_exempt
+# this is csrf protected as it's the only destructive action.
 def delete_profile(request, access_token):
     # Delete profile from database
     if request.method == 'DELETE':
@@ -34,11 +34,12 @@ def delete_profile(request, access_token):
 @csrf_exempt
 def save_snapshot(request, access_token):
     # Save the most recent data access to the database
-    if request.method != 'POST':
+    if request.method == 'POST':
         response = fetch.save_snapshot(access_token)
         return JsonResponse(**response._asdict())
     return HttpResponse(status=404)
 
+@csrf_exempt
 def list_snapshots(request, access_token):
     # Returns a list of all snapshot dates for a profile
     if request.method == 'GET':
@@ -46,7 +47,7 @@ def list_snapshots(request, access_token):
         return JsonResponse(**response._asdict())
     return JsonResponse(data="Invalid request", status=400)
 
-@ensure_csrf_cookie
+@csrf_exempt
 def get_snapshot(request, access_token, snapshot_index):
     # Return data for a profile snapshot given the index
     if request.method == 'GET':

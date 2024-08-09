@@ -142,6 +142,7 @@ async function fetchProfile(accessToken) {
   const response = await result.json();
   const data = JSON.stringify(response);
   localStorage.setItem("profile", data);
+  localStorage.setItem("snapshot_index", 0);
   console.log(data);
 
   return response;

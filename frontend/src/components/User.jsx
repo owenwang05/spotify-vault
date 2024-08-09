@@ -5,17 +5,28 @@ import { checkValidSession, getRecent, getSnapshot, listSnapshots, saveSnapshot}
 
 export function User(){
   const [data, setData] = useState(undefined);
-  const [snapshots, setSnapshots] = useState(undefined)
+  const [snapshots, setSnapshots] = useState(undefined);
+  const [recentSave, setRecentSave] = useState(false)
+  const cur_snapshot = Number(localStorage.getItem('snapshot_index'));
 
   useEffect(() => {(async () => {
     await checkValidSession(); 
     try {
-      getRecent(setData);
+      await getRecent(setData);
       listSnapshots(setSnapshots);
     } catch(e) {
       console.error(e);
     }
   })();}, []);
+
+  useEffect(() => {
+    if(recentSave) {
+      function callback() {
+        setRecentSave(false);
+      }
+      setTimeout(callback, 5000);
+    }
+  }, [recentSave])
 
   return (
     <>
@@ -102,24 +113,44 @@ export function User(){
                   </div>
                 </div>
               </div>
-      
-              <div className='animate-loadIn h-96 w-full bg-background-primary'>
-
-              </div>
               
               <div className='min-h-96 h-full bg-background-primary text-t-primary rounded-lg p-8 w-full'>
-                <h1 className='text-3xl font-semibold mb-4'>Snapshots</h1>
+                <div className='flex w-full'>
+                  <div className='flex-col basis-full'>
+                    <h1 className='text-3xl font-semibold mb-4'>Snapshots</h1>
+                  </div>
+                  {cur_snapshot == 0 ? 
+                  <div className='flex-col basis-full text-right'>
+                    <div className='flex basis-full justify-end'>
+                      {recentSave ? 
+                      <p className='text-sm text-t-secondary my-auto mr-3'>Last save was too recent.</p>
+                      : <></>}
+                      <button className='font-akshar font-medium px-3 py-1 bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-sm text-xl text-t-tertiary'
+                      onClick={(e) => {
+                        saveSnapshot().then((success) => { 
+                          if(success) window.location.reload(); 
+                          else {
+                            setRecentSave(true);
+                          }
+                        })
+                      }}
+                      >SAVE RECENT</button>
+                    </div>
+                  </div>
+                  : <></>}
+                </div>
                 {snapshots ? <>{snapshots.map((item, index) => {
                   const date = item.date.split('T')[0];
                   return (
-                  <button 
+                    <button key={"snapshots" + index} 
                     onClick={(e) => {getSnapshot(index, setData)}}
-                    className="rounded-sm border-2 border-stone-800 transition-colors hover:text-t-secondary hover:bg-background-tertiary px-1 m-1">
-                    <h2 key={"snapshots" + index} className='text-2xl font-semibold text-t-primary'>
-                    <span className="text-xl text-t-secondary">{snapshots.length-index + ": " }</span>
-                      {index == 0 ? "Recent" : date}
-                    </h2>
-                  </button>)
+                    className={'rounded-sm border-2 border-stone-800 transition-colors hover:text-t-secondary px-1 m-1 '
+                      + (index === cur_snapshot ? 'bg-slate-700 hover:bg-slate-800' : 'bg-background-primary hover:bg-background-tertiary')}>
+                      <h2 className='text-2xl font-semibold text-t-primary'>
+                      <span className="text-xl text-t-secondary">{snapshots.length-index + ": " }</span>
+                        {index == 0 ? "Recent" : date}
+                      </h2>
+                    </button>)
                 })}</>: "loading your snapshots..."}
               </div> 
             </>

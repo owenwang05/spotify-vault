@@ -1,7 +1,5 @@
-import { clearData, checkAPICode } from "./auth";
-import Cookies from 'js-cookie'
+import { checkAPICode } from "./auth";
 
-const clientID = "84909814ef1c44faad1299269068aa6e";
 const apiURL = "http://localhost:8000/api"
 
 export async function checkValidSession() {
@@ -16,8 +14,9 @@ export async function checkValidSession() {
   return false;
 }
 
-export async function createProfile(setData) {
-  const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
+export async function createProfile(accessToken) {
+  if(!accessToken)
+    accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
   await fetch(`${apiURL}/create/${accessToken}/`, {
     method: 'POST',
   });
@@ -26,12 +25,12 @@ export async function createProfile(setData) {
 export async function getRecent(setData) {
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
   const result = await fetch(`${apiURL}/recent/${accessToken}/`, {
-    method: 'POST',
+    method: 'GET',
   });
 
   const response = await result.json(); 
-  const data = JSON.stringify(response);
-  localStorage.setItem('data', data);
+  // const data = JSON.stringify(response);
+  // localStorage.setItem('data', data);
   setData(response);
 }
 
@@ -42,8 +41,8 @@ export async function listSnapshots(setSnapshotList) {
   });
 
   const response = await result.json(); 
-  const data = JSON.stringify(response);
-  localStorage.setItem('snapshot_list', data);
+  // const data = JSON.stringify(response);
+  // localStorage.setItem('snapshot_list', data);
   let array_conversion = []
   for(let i = 0; i < response.length; i++) {
     array_conversion.push(response[i]);
@@ -58,8 +57,9 @@ export async function getSnapshot(index, setSnapshot) {
   });
 
   const response = await result.json(); 
-  const data = JSON.stringify(response);
-  localStorage.setItem('snapshot', data);
+  // const data = JSON.stringify(response);
+  // localStorage.setItem('snapshot', data);
+  localStorage.setItem('snapshot_index', index)
   setSnapshot(response);
 }
 
@@ -74,5 +74,5 @@ export async function saveSnapshot() {
     return false;
   }
 
-  return true;
+  return false;
 }
