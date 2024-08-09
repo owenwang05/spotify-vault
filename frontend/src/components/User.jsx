@@ -116,7 +116,7 @@ export function User(){
               
               <div className='min-h-96 h-full bg-background-primary text-t-primary rounded-lg p-8 w-full'>
                 <div className='flex w-full'>
-                  <div className='flex-col basis-full'>
+                  <div className='flex-col basis-auto'>
                     <h1 className='text-3xl font-semibold mb-4'>Snapshots</h1>
                   </div>
                   {cur_snapshot == 0 ? 

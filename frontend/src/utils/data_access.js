@@ -66,13 +66,16 @@ export async function getSnapshot(index, setSnapshot) {
 export async function saveSnapshot() {
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
   try {
-    await fetch(`${apiURL}/save/${accessToken}/`, {
+    const response = await fetch(`${apiURL}/save/${accessToken}/`, {
       method: 'POST',
     });
+    if(response.status === 403) {
+      return false;
+    }
   } catch(e) {
     console.error(e);
     return false;
   }
 
-  return false;
+  return true;
 }
