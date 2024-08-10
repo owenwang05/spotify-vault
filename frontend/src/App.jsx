@@ -14,7 +14,7 @@ function App() {
         <Route path="/" index element={<Landing/>}/> <Route path="/home" element={<Navigate to="/" replace/>}/> <Route path="/index" element={<Navigate to="/" replace/>}/>
         <Route path="auth" element={<Auth/>}/>
         <Route path="noauth" element={<NoAuth/>}/>
-        <Route path="temp" element={<Temp/>}/>
+        {/* <Route path="temp" element={<Temp/>}/> */}
         <Route path="user" element={<User />}/>
         <Route path="*" element={<Error/>}/>
       </Routes>

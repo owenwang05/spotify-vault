@@ -75,7 +75,7 @@ export function UserHeader() {
               >
                 Log Out
               </button>
-              <button 
+              {/* <button 
                 className="transition-all font-akshar text-right w-full px-2 py-1 hover:bg-background-tertiary border-l-0 hover:border-l-6 border-background-primary hover:border-bt-primary text-xl"
                 onClick={() => {
                   setShowPopup(false);
@@ -83,7 +83,7 @@ export function UserHeader() {
                 }}
               >
                 Dev
-              </button>
+              </button> */}
             </div>
             : null
           }

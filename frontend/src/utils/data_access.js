@@ -1,6 +1,5 @@
-import { checkAPICode } from "./auth";
-
-const apiURL = "http://localhost:8000/api"
+import { checkAPICode } from './auth';
+import { apiURL } from '../../auth.config'
 
 export async function checkValidSession() {
   const expire = localStorage.getItem("expire");
@@ -17,15 +16,21 @@ export async function checkValidSession() {
 export async function createProfile(accessToken) {
   if(!accessToken)
     accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
-  await fetch(`${apiURL}/create/${accessToken}/`, {
+  await fetch(`${apiURL}/create/`, {
     method: 'POST',
+    headers: {
+      Authorization: accessToken,
+    }
   });
 }
 
 export async function getRecent(setData) {
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
-  const result = await fetch(`${apiURL}/recent/${accessToken}/`, {
+  const result = await fetch(`${apiURL}/recent/`, {
     method: 'GET',
+    headers: {
+      Authorization: accessToken,
+    }
   });
 
   const response = await result.json(); 
@@ -36,8 +41,11 @@ export async function getRecent(setData) {
 
 export async function listSnapshots(setSnapshotList) {
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
-  const result = await fetch(`${apiURL}/snapshots/${accessToken}/`, {
+  const result = await fetch(`${apiURL}/snapshots/`, {
     method: "GET",
+    headers: {
+      Authorization: accessToken,
+    }
   });
 
   const response = await result.json(); 
@@ -52,8 +60,11 @@ export async function listSnapshots(setSnapshotList) {
 
 export async function getSnapshot(index, setSnapshot) {
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
-  const result = await fetch(`${apiURL}/snapshots/${accessToken}/${index}`, {
+  const result = await fetch(`${apiURL}/snapshots/${index}`, {
     method: "GET",
+    headers: {
+      Authorization: accessToken,
+    }
   });
 
   const response = await result.json(); 
@@ -66,8 +77,11 @@ export async function getSnapshot(index, setSnapshot) {
 export async function saveSnapshot() {
   const accessToken = JSON.parse(localStorage.getItem("access_token")).access_token;
   try {
-    const response = await fetch(`${apiURL}/save/${accessToken}/`, {
+    const response = await fetch(`${apiURL}/save/`, {
       method: 'POST',
+      headers: {
+        Authorization: accessToken,
+      }
     });
     if(response.status === 403) {
       return false;

@@ -1,9 +1,5 @@
 import { createProfile } from './data_access'
-
-// optionally create your own spotify app and host it here
-const clientID = "84909814ef1c44faad1299269068aa6e";
-// set this to your own domain's auth return page.
-const redirectURI = "http://localhost:5173/auth";
+import { clientID } from '../../auth.config'
 
 // prevent user from being stuck in an authentication loop 
 export function clearData()
@@ -73,7 +69,8 @@ async function redirectToAuthCodeFlow() {
   const challenge = await generateCodeChallenge(verifier);
 
   localStorage.setItem("verifier", verifier);
-
+  const redirectURI =  window.location.protocol + "//" + window.location.host + "/auth"
+  console.log(redirectURI);
   const params = new URLSearchParams();
   params.append("client_id", clientID);
   params.append("response_type", "code");
@@ -98,6 +95,7 @@ async function getAccessToken(code) {
   }
 
   const verifier = localStorage.getItem("verifier");
+  const redirectURI = window.location.protocol + "//" + window.location.host + "/auth"
   
   const params = new URLSearchParams();
   params.append("client_id", clientID);

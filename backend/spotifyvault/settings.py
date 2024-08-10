@@ -8,9 +8,9 @@ DB_PASSWORD
 HOST
 PORT
 SECRET_KEY
+ALLOWED_ORIGINS
 
 """
-
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -19,7 +19,6 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -137,8 +136,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Set this to your own domain
-allowed_origins = ['http://localhost:5173',]
-
+allowed_origins = eval(os.getenv('ALLOWED_ORIGINS'))
 CORS_ALLOWED_ORIGINS = allowed_origins
 
 CSRF_TRUSTED_ORIGINS = allowed_origins

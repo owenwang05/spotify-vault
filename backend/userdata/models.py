@@ -23,7 +23,7 @@ class Profile(models.Model):
 
 class Snapshot(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    date = models.DateTimeField('Date Saved', auto_now_add=True)
+    date = models.DateTimeField('Date Saved', auto_now=True)
     username = models.CharField(max_length=30, default='null')
     avatar_url = models.CharField(max_length=100, default='') # empty string signifies no profile picture
     listening_time = models.IntegerField(default=0) # in milliseconds
