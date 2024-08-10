@@ -133,8 +133,8 @@ Set your backend API url and optionally set your own spotify app id in **auth.co
 ```
 ```js
   // auth.config.js
-  export const clientID = ...
-  export const apiURL = backend api url
+  export const clientID = "...";
+  export const apiURL = "backend api url";
 ```
 
 Start the server
