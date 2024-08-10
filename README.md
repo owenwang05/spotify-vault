@@ -3,9 +3,11 @@ A personalized daily Spotify stats tracker with the ability to save 24 hour prof
 
 ## Features 
 **Authentication and Session Tracking:** Interfaces with the Spotify Web API's OAuth2.0 authorization flow so you can log in directly through Spotify. Keeps track of your session so you only need to log in once within an extended time period.
+
 ![2024-08-1001-50-33-CUT-ezgif-com-video-to-gif-converter.gif](https://i.postimg.cc/VN8CVZrk/2024-08-1001-50-33-CUT-ezgif-com-video-to-gif-converter.gif)
 
 **View User Data:** See your profile's approximate listening data and top genres in the last 24 hours, as well as your top 5 songs and top 5 artists in the last 4 weeks.
+
 ![image.png](https://i.postimg.cc/1RJLYdtR/image.png)
 
 **Save User Data:** Save the profile statistics you're currently viewing for later. You can save a profile snapshot once every 24 hours.
