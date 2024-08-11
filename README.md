@@ -1,5 +1,5 @@
 # Spotify Vault 
-A personalized daily Spotify stats tracker with the ability to save 24 hour profile snapshots of top genres, top songs, top artists, and listening time.
+A personalized daily Spotify stats tracker with the ability to save daily profile snapshots of top genres, top songs, top artists, and listening time.
 
 ## Features 
 **Authentication and Session Tracking:** Interfaces with the Spotify Web API's OAuth2.0 authorization flow so you can log in directly through Spotify. Keeps track of your session so you only need to log in once within an extended time period.

@@ -13,7 +13,7 @@ class Profile(models.Model):
     last_saved = models.DateTimeField('Last Saved', default=datetime.date.min)
 
     def recently_saved(self):
-        return self.last_saved >= timezone.now() - datetime.timedelta(days=1)
+        return self.last_saved >= timezone.now() - datetime.timedelta(hours=12)
 
     def total_snapshots(self):
         return self.snapshot_set.count()

@@ -123,7 +123,7 @@ export function User(){
                   <div className='flex-col basis-full text-right'>
                     <div className='flex basis-full justify-end'>
                       {recentSave ? 
-                      <p className='text-sm text-t-secondary my-auto mr-3'>Last save was too recent.</p>
+                      <p className='text-sm text-t-secondary my-auto mr-3'>Last save was too recent. Save every 12 hours.</p>
                       : <></>}
                       <button className='font-akshar font-medium px-3 py-1 bg-bt-primary transition-colors hover:bg-bt-secondary hover:text-t-primary rounded-sm text-xl text-t-tertiary'
                       onClick={(e) => {
@@ -143,7 +143,10 @@ export function User(){
                   const date = item.date.split('T')[0];
                   return (
                     <button key={"snapshots" + index} 
-                    onClick={(e) => {getSnapshot(index, setData)}}
+                    onClick={(e) => {
+                      getSnapshot(index, setData);
+                      window.scrollTo({top: 0, behavior: 'smooth'});
+                    }}
                     className={'rounded-sm border-2 border-stone-800 transition-colors hover:text-t-secondary px-1 m-1 '
                       + (index === cur_snapshot ? 'bg-slate-700 hover:bg-slate-800' : 'bg-background-primary hover:bg-background-tertiary')}>
                       <h2 className='text-2xl font-semibold text-t-primary'>
