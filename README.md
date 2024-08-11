@@ -14,7 +14,7 @@ A personalized daily Spotify stats tracker with the ability to save daily profil
 
 **Utilize the Backend API Seperately:** You can create your own front-end to interface with user snapshots and profile saving as they're implemented through a backend RESTful API.
 
-<u>API Calls</u>:
+<ins>API Calls</ins>:
 - **/api/create/**
   - method: POST
   - headers:
