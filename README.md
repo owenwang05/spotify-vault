@@ -12,7 +12,7 @@ A personalized daily Spotify stats tracker with the ability to save daily profil
 
 **Save User Data:** Save the profile statistics you're currently viewing for later. You can save a profile snapshot once every 24 hours.
 
-![snapshotdemo.gif](https://i.postimg.cc/B6K52c3H/snapshotdemo.gif)
+![snapshot-demo.gif](https://i.postimg.cc/vBrgQPMq/snapshot-demo.gif)]
 
 **Utilize the Backend API Seperately:** You can create your own front-end to interface with user snapshots and profile saving as they're implemented through a backend RESTful API.
 
