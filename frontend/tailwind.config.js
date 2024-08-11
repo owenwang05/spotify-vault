@@ -32,6 +32,7 @@ export default {
       'loadIn': 'loadIn 0.6s ease-out',
       'popup': 'loadIn 0.3s ease-out',
       'pulse': 'pulse 1.2s ease-in-out infinite',
+      'spinner': '1s ease-in-out infinite'
     },
     colors: {
       ...colors,

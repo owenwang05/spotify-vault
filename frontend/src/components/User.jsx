@@ -6,7 +6,7 @@ import { checkValidSession, getRecent, getSnapshot, listSnapshots, saveSnapshot}
 export function User(){
   const [data, setData] = useState(undefined);
   const [snapshots, setSnapshots] = useState(undefined);
-  const [recentSave, setRecentSave] = useState(false)
+  const [recentSave, setRecentSave] = useState(false);
   const cur_snapshot = Number(localStorage.getItem('snapshot_index'));
 
   useEffect(() => {(async () => {
@@ -142,17 +142,25 @@ export function User(){
                 {snapshots ? <>{snapshots.map((item, index) => {
                   const date = item.date.split('T')[0];
                   return (
-                    <button key={"snapshots" + index} 
-                    onClick={(e) => {
-                      getSnapshot(index, setData);
+                    <button key={"snapshots" + index} id={"snapshots" + index} 
+                    onClick={async (e) => {
+                      const button_obj = document.getElementById(e.currentTarget.id)
+                      const button_inner = button_obj.firstChild
+                      button_inner.setAttribute('style', 'visibility: hidden')
+                      button_obj.setAttribute('style', 'background-image:url(https://i.postimg.cc/zG2q1Mvk/loading.gif); background-size:contain; background-position: center; background-repeat: no-repeat')
+                      await getSnapshot(index, setData);
+                      button_inner.setAttribute('style', 'visibility: visible')
+                      button_obj.setAttribute('style', 'background-image: none')
                       window.scrollTo({top: 0, behavior: 'smooth'});
                     }}
                     className={'rounded-sm border-2 border-stone-800 transition-colors hover:text-t-secondary px-1 m-1 '
                       + (index === cur_snapshot ? 'bg-slate-700 hover:bg-slate-800' : 'bg-background-primary hover:bg-background-tertiary')}>
-                      <h2 className='text-2xl font-semibold text-t-primary'>
-                      <span className="text-xl text-t-secondary">{snapshots.length-index + ": " }</span>
-                        {index == 0 ? "Recent" : date}
-                      </h2>
+                      <span>  
+                        <h2 className='text-2xl font-semibold text-t-primary'>
+                        <span className="text-xl text-t-secondary">{snapshots.length-index + ": " }</span>
+                          {index == 0 ? "Recent" : date}
+                        </h2>
+                      </span>
                     </button>)
                 })}</>: "loading your snapshots..."}
               </div> 
